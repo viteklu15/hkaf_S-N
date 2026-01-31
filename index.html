@@ -14,6 +14,7 @@
       max-width: 520px;
       margin: 0 auto;
       padding: 20px;
+      box-sizing: border-box;
     }
     label {
       display: block;
@@ -41,6 +42,21 @@
       padding: 8px 12px;
       white-space: nowrap;
     }
+    .ip-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .ip-row input[type="text"] {
+      margin-bottom: 0;
+    }
+    .ip-row input[readonly] {
+      background: #f3f4f6;
+      color: #4b5563;
+      cursor: not-allowed;
+    }
     input[type="submit"], button {
       background-color: #4CAF50;
       color: white;
@@ -62,6 +78,10 @@
     #error-msg {
       color: red;
       margin-bottom: 10px;
+    }
+    .invalid {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
     }
     .scanner {
       margin-top: 20px;
@@ -108,26 +128,64 @@
       min-height: 36px;
       margin-top: 10px;
     }
+    @media (max-width: 600px) {
+      body {
+        padding: 16px;
+        max-width: 100%;
+      }
+      .ip-row,
+      .serial-row {
+        grid-template-columns: 1fr;
+      }
+      .serial-row button {
+        width: 100%;
+      }
+      input[type="submit"], button {
+        font-size: 16px;
+      }
+      h2 {
+        text-align: center;
+      }
+    }
   </style>
   <script>
+    const IP_PREFIX = '192.168.0.';
+
+    function buildIp() {
+      const lastOctet = document.getElementById('ip').value.trim();
+      return IP_PREFIX + lastOctet;
+    }
+
     function validateForm() {
-      const ip = document.getElementById('ip').value.trim();
+      const lastOctet = document.getElementById('ip').value.trim();
       const idProduct = document.getElementById('serial').value.trim();
       const form = document.getElementById('myForm');
       const errorMsg = document.getElementById('error-msg');
+      const ipInput = document.getElementById('ip');
+      const serialInput = document.getElementById('serial');
 
-      const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
-      if (!ipRegex.test(ip)) {
-        errorMsg.textContent = "Неверный формат IP-адреса.";
+      ipInput.classList.remove('invalid');
+      serialInput.classList.remove('invalid');
+
+      if (!/^\d{1,3}$/.test(lastOctet)) {
+        errorMsg.textContent = "Введите последние 1–3 цифры IP-адреса.";
+        ipInput.classList.add('invalid');
+        return false;
+      }
+      const lastOctetValue = Number(lastOctet);
+      if (Number.isNaN(lastOctetValue) || lastOctetValue > 255) {
+        errorMsg.textContent = "Последний октет IP должен быть в диапазоне 0–255.";
+        ipInput.classList.add('invalid');
         return false;
       }
       if (idProduct.length !== 6) {
         errorMsg.textContent = "Номер устройства должен содержать 6 символов.";
+        serialInput.classList.add('invalid');
         return false;
       }
 
       errorMsg.textContent = "";
-      form.action = 'http://' + ip + '/set_data';
+      form.action = 'http://' + buildIp() + '/set_data';
       return true;
     }
   </script>
@@ -137,7 +195,10 @@
   <div id="error-msg"></div>
 
   <label for="ip">IP-адрес устройства:</label>
-  <input type="text" id="ip" value="192.168.0.1">
+  <div class="ip-row">
+    <input type="text" id="ip-prefix" value="192.168.0." readonly>
+    <input type="text" id="ip" inputmode="numeric" maxlength="3" placeholder="1–255" autocomplete="off">
+  </div>
 
   <form id="myForm" method="GET" onsubmit="return validateForm()">
     <label for="serial">Серийный номер:</label>
@@ -156,7 +217,7 @@
         <canvas id="canvas"></canvas>
         <button id="stopBtn" type="button" class="secondary" disabled>Остановить</button>
         <div id="output">— нет данных —</div>
-        <div class="hint">Если камера не стартует — открой страницу через <code>localhost</code> или HTTPS.</div>
+        
       </div>
     </div>
   </div>
@@ -286,6 +347,29 @@
 
   scanBtn.addEventListener('click', startCamera);
   stopBtn.addEventListener('click', stopCamera);
+})();
+
+(() => {
+  const ipInput = document.getElementById('ip');
+  const serialInput = document.getElementById('serial');
+  const submitBtn = document.querySelector('input[type="submit"]');
+
+  function updateSubmitState() {
+    submitBtn.disabled = false;
+  }
+
+  ipInput.addEventListener('input', () => {
+    ipInput.value = ipInput.value.replace(/[^\d]/g, '').slice(0, 3);
+    document.getElementById('error-msg').textContent = '';
+    ipInput.classList.remove('invalid');
+    updateSubmitState();
+  });
+  serialInput.addEventListener('input', () => {
+    document.getElementById('error-msg').textContent = '';
+    serialInput.classList.remove('invalid');
+    updateSubmitState();
+  });
+  updateSubmitState();
 })();
 
 if ('serviceWorker' in navigator) {
