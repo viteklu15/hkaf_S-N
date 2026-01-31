@@ -1,407 +1,178 @@
-<!DOCTYPE html>
+﻿<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#4361ee">
-  <meta name="description" content="Калькулятор для расчета премии на основе выполнения плана">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Калькулятор премии</title>
- <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icon-192.png" type="image/png">
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Веб-сканер штрих-кодов (офлайн)</title>
   <style>
-    :root {
-      --primary: #4361ee;
-      --primary-light: #4895ef;
-      --secondary: #3f37c9;
-      --success: #4cc9f0;
-      --danger: #f72585;
-      --dark: #1a1a2e;
-      --light: #f8f9fa;
-      --border-radius: 8px;
-      --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      --transition: all 0.3s ease;
-    }
-    
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      line-height: 1.6;
-      color: var(--dark);
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      min-height: 100vh;
-      padding: 2rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .container {
-      background: white;
-      border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
-      padding: 2rem;
-      width: 100%;
-      max-width: 500px;
-      transform: translateY(0);
-      transition: var(--transition);
-      animation: fadeInUp 0.5s ease;
-    }
-    
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    h2 {
-      color: var(--secondary);
-      margin-bottom: 1.5rem;
-      text-align: center;
-      font-weight: 600;
-    }
-    
-    .input-group {
-      margin-bottom: 1.5rem;
-    }
-    
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      color: var(--dark);
-    }
-    
-    input {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border: 2px solid #e9ecef;
-      border-radius: var(--border-radius);
-      font-size: 1rem;
-      transition: var(--transition);
-    }
-    
-    input:focus {
-      outline: none;
-      border-color: var(--primary-light);
-      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-    }
-    
-    .result {
-      background: linear-gradient(to right, #f8f9fa, #e9ecef);
-      border-radius: var(--border-radius);
-      padding: 1.5rem;
-      margin-top: 2rem;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: var(--transition);
-    }
-    
-    .result.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    
-    .result-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 1rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid #dee2e6;
-    }
-    
-    .result-item:last-child {
-      margin-bottom: 0;
-      padding-bottom: 0;
-      border-bottom: none;
-    }
-    
-    .result-label {
-      font-weight: 500;
-    }
-    
-    .result-value {
-      font-weight: 600;
-      color: var(--primary);
-      transition: var(--transition);
-    }
-    
-    .highlight {
-      color: var(--secondary);
-      animation: pulse 1s infinite alternate;
-    }
-    
-    @keyframes pulse {
-      from {
-        transform: scale(1);
-      }
-      to {
-        transform: scale(1.05);
-      }
-    }
-    
-    .currency {
-      color: var(--success);
-    }
-    
-    .progress-container {
-      height: 8px;
-      background: #e9ecef;
-      border-radius: 4px;
-      margin: 1rem 0;
-      overflow: hidden;
-    }
-    
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(to right, #4cc9f0, #4361ee);
-      border-radius: 4px;
-      width: 0;
-      transition: width 0.8s ease, background-color 0.3s ease;
-    }
-    
-    .error-message {
-      color: var(--danger);
-      font-size: 0.9rem;
-      margin-top: 0.25rem;
-      display: none;
-    }
-
-    /* Стиль для кнопки установки PWA */
-    .install-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 56px;
-      height: 56px;
-      font-size: 24px;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .install-btn:hover {
-      background-color: var(--secondary);
-    }
+    body { font-family: Arial, sans-serif; display:flex; gap:20px; padding:20px; }
+    #left { max-width:640px; }
+    video { width:100%; max-width:640px; border:1px solid #ccc; background:#000; }
+    canvas { display:none; }
+    #output { padding:10px; border:1px solid #ddd; min-height:40px; width:320px; }
+    button { margin-right:8px; padding:8px 12px; }
+    .hint { color:#666; font-size:0.9rem; margin-top:8px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Калькулятор премии</h2>
-    
-    <div class="input-group">
-      <label for="plan">План (₽)</label>
-        <input type="text" id="plan" placeholder="Введите план, ₽" inputmode="numeric">
-      <div class="error-message" id="plan-error">Введите корректную сумму</div>
-    </div>
-    
-    <div class="input-group">
-      <label for="revenue">Выручка (₽)</label>
-      <input type="text" id="revenue" placeholder="Введите выручку, ₽" inputmode="numeric">
-      <div class="error-message" id="revenue-error">Введите корректную сумму</div>
-    </div>
-    
-    <div class="progress-container">
-      <div class="progress-bar" id="progress"></div>
-    </div>
-    
-    <div class="result" id="result">
-      <div class="result-item">
-        <span class="result-label">Процент выполнения плана:</span>
-        <span class="result-value" id="percent">0%</span>
-      </div>
-      <div class="result-item">
-        <span class="result-label">Премия:</span>
-        <span class="result-value"><span id="bonus">0</span> <span class="currency">₽</span></span>
-      </div>
+  <div id="left">
+    <h2>Сканер штрих/QR — офлайн</h2>
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+    <div class="hint">Поддерживаемые браузеры: Chromium/Chrome/Edge (лучше всего). Если камера не стартует — проверь, что открыт через <code>localhost</code> или по HTTPS.</div>
+    <div style="margin-top:8px;">
+      <button id="startBtn">Запустить камеру</button>
+      <button id="stopBtn" disabled>Остановить</button>
     </div>
   </div>
 
-  <!-- Кнопка для установки PWA -->
-  <button class="install-btn" id="installBtn" title="Установить приложение">+</button>
+  <div id="right">
+    <h3>Результат</h3>
+    <div id="output">— нет данных —</div>
+    <div class="hint" style="margin-top:10px;">
+      Запасной вариант: jsQR (если BarcodeDetector не поддерживается). Для этого скачай <code>jsQR</code> и подключи локально (см. инструкцию ниже).
+    </div>
+  </div>
 
-  <script>
-    const planInput = document.getElementById('plan');
-    const revenueInput = document.getElementById('revenue');
-    const percentOutput = document.getElementById('percent');
-    const bonusOutput = document.getElementById('bonus');
-    const resultContainer = document.getElementById('result');
-    const progressBar = document.getElementById('progress');
-    const planError = document.getElementById('plan-error');
-    const revenueError = document.getElementById('revenue-error');
-    const installBtn = document.getElementById('installBtn');
+<script>
+(async function(){
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const output = document.getElementById('output');
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
 
-    // Форматирование числа с пробелами между тысячами
-    function formatNumber(num) {
-      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  let stream = null;
+  let rafId = null;
+  let detector = null;
+  let useBarcodeDetector = false;
+
+  // Проверяем поддержку BarcodeDetector
+  if ('BarcodeDetector' in window) {
+    try {
+      const supported = await BarcodeDetector.getSupportedFormats();
+      // Поддерживаемые форматы сюда попадут, например: ["qr_code","ean_13",...]
+      detector = new BarcodeDetector({formats: supported});
+      useBarcodeDetector = true;
+      console.log('Используем BarcodeDetector. Форматы:', supported);
+    } catch (e) {
+      console.warn('BarcodeDetector не доступен:', e);
+      useBarcodeDetector = false;
+    }
+  } else {
+    console.log('BarcodeDetector не поддерживается в этом браузере.');
+  }
+
+  // Функция обработки кадра
+  async function processFrame() {
+    if (!video.videoWidth) {
+      rafId = requestAnimationFrame(processFrame);
+      return;
     }
 
-    // Парсинг числа из форматированной строки
-    function parseFormattedNumber(str) {
-      return parseFloat(str.replace(/\s/g, '')) || 0;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    try {
+      if (useBarcodeDetector && detector) {
+        // Используем нативный API
+        const barcodes = await detector.detect(canvas);
+        if (barcodes && barcodes.length) {
+          // Показать все найденные
+          output.innerHTML = barcodes.map(b => {
+            // b.rawValue — данные; b.format — формат
+            return `<div><strong>${b.format}</strong>: ${escapeHtml(b.rawValue)}</div>`;
+          }).join('');
+        } else {
+          // нет результата
+          output.textContent = '— не найдено —';
+        }
+      } else {
+        // Запасной вариант: jsQR (нужен глобальный jsQR)
+        if (typeof jsQR === 'function') {
+          const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+          const qr = jsQR(imageData.data, imageData.width, imageData.height);
+          if (qr) {
+            output.innerHTML = `<div><strong>JSQR</strong>: ${escapeHtml(qr.data)}</div>`;
+            // можно добавить отрисовку рамки: qr.location...
+            drawLine(qr.location.topLeftCorner, qr.location.topRightCorner);
+            drawLine(qr.location.topRightCorner, qr.location.bottomRightCorner);
+            drawLine(qr.location.bottomRightCorner, qr.location.bottomLeftCorner);
+            drawLine(qr.location.bottomLeftCorner, qr.location.topLeftCorner);
+          } else {
+            output.textContent = '— не найдено —';
+          }
+        } else {
+          output.textContent = 'BarcodeDetector не поддерживается и jsQR не подключён.';
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      output.textContent = 'Ошибка: ' + err.message;
     }
 
-    function calculateBonus() {
-      const plan = parseFormattedNumber(planInput.value);
-      const revenue = parseFormattedNumber(revenueInput.value);
+    rafId = requestAnimationFrame(processFrame);
+  }
 
-      // Валидация ввода
-      let isValid = true;
-      
-      if (isNaN(plan) || plan <= 0) {
-        planError.style.display = 'block';
-        isValid = false;
-      } else {
-        planError.style.display = 'none';
-      }
-      
-      if (isNaN(revenue) || revenue < 0) {
-        revenueError.style.display = 'block';
-        isValid = false;
-      } else {
-        revenueError.style.display = 'none';
-      }
+  function drawLine(a, b) {
+    ctx.strokeStyle = '#FF3B3B';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+  }
 
-      if (!isValid) {
-        resultContainer.classList.remove('show');
-        progressBar.style.width = '0';
-        percentOutput.textContent = '0%';
-        bonusOutput.textContent = '0';
-        return;
-      }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); });
+  }
 
-      const percentRaw = (revenue / plan) * 100;
-      const percent = Math.min(Math.round(percentRaw), 200); // Ограничиваем до 200% для прогресс-бара
-      
-      // Анимация прогресс-бара
-      progressBar.style.width = `${Math.min(percent, 100)}%`;
-      
-      // Цвет прогресс-бара в зависимости от выполнения
-      if (percent >= 100) {
-        progressBar.style.background = 'linear-gradient(to right, #4cc9f0, #3a0ca3)';
-      } else if (percent >= 80) {
-        progressBar.style.background = 'linear-gradient(to right, #4cc9f0, #4361ee)';
-      } else {
-        progressBar.style.background = 'linear-gradient(to right, #f72585, #7209b7)';
-      }
-
-      let bonus = 0;
-
-      if (percent > 100) {
-        const extraPercent = percent - 100;
-        bonus = 40000 + extraPercent * 400;
-      } else if (percent >= 80) {
-        bonus = 10000 + (percent - 80) * 1500;
-      } else {
-        bonus = 0;
-      }
-
-      // Показываем результаты
-      resultContainer.classList.add('show');
-      
-      // Обновляем значения
-      percentOutput.textContent = `${percent}%`;
-      bonusOutput.textContent = formatNumber(Math.round(bonus));
+  async function startCamera() {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+      video.srcObject = stream;
+      await video.play();
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      rafId = requestAnimationFrame(processFrame);
+      output.textContent = 'Камера запущена, ищем штрих/QR...';
+    } catch (e) {
+      console.error('Ошибка доступа к камере:', e);
+      output.textContent = 'Ошибка доступа к камере: ' + (e.message || e.name);
     }
+  }
 
-    // Обработчики событий для форматирования ввода
-    planInput.addEventListener('input', function(e) {
-      // Удаляем все нецифровые символы
-      let value = this.value.replace(/[^\d]/g, '');
-      
-      // Форматируем с пробелами
-      if (value.length > 0) {
-        value = formatNumber(parseInt(value));
-      }
-      
-      this.value = value;
-      calculateBonus();
-    });
-    
-    revenueInput.addEventListener('input', function(e) {
-      // Удаляем все нецифровые символы
-      let value = this.value.replace(/[^\d]/g, '');
-      
-      // Форматируем с пробелами
-      if (value.length > 0) {
-        value = formatNumber(parseInt(value));
-      }
-      
-      this.value = value;
-      calculateBonus();
-    });
+  function stopCamera() {
+    if (rafId) cancelAnimationFrame(rafId);
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+    }
+    video.srcObject = null;
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    output.textContent = 'Камера остановлена.';
+  }
 
-    // PWA Установка
-    let deferredPrompt;
+  startBtn.addEventListener('click', startCamera);
+  stopBtn.addEventListener('click', stopCamera);
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-      // Предотвращаем автоматическое отображение подсказки
-      e.preventDefault();
-      // Сохраняем событие для последующего использования
-      deferredPrompt = e;
-      // Показываем кнопку установки
-      installBtn.style.display = 'flex';
-    });
+  // Если хочешь — можно автозапускать:
+  // startCamera();
 
-    installBtn.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      
-      // Показываем подсказку установки
-      deferredPrompt.prompt();
-      
-      // Ждем, пока пользователь ответит на подсказку
-      const { outcome } = await deferredPrompt.userChoice;
-      
-      // Можно использовать для аналитики
-      console.log(`User response to the install prompt: ${outcome}`);
-      
-      // Больше не нужен
-      deferredPrompt = null;
-      
-      // Скрываем кнопку
-      installBtn.style.display = 'none';
-    });
+})();
+</script>
 
-    window.addEventListener('appinstalled', () => {
-      // Скрываем кнопку установки
-      installBtn.style.display = 'none';
-      // Можно использовать для аналитики
-      console.log('PWA was installed');
-    });
+<!--
+Запасной вариант (jsQR):
+1) Скачай jsQR (https://github.com/cozmo/jsQR) — бери скомпилированный файл jsQR.js (или jsQR.min.js).
+2) Положи его в ту же папку, что и index.html.
+3) Раскомментируй следующий тег, чтобы подключить локальную библиотеку:
 
-    // Регистрация Service Worker
-    if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/premiya/service-worker.js')
-      .then(reg => console.log('Service Worker зарегистрирован', reg))
-      .catch(err => console.log('Ошибка регистрации Service Worker', err));
-  });
-}
+<script src="jsqr.min.js"></script>
 
-
-    // Инициализация при загрузке
-    document.addEventListener('DOMContentLoaded', () => {
-      resultContainer.classList.add('show');
-    });
-  </script>
+-->
 </body>
 </html>
