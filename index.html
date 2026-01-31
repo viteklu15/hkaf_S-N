@@ -3,37 +3,160 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Веб-сканер штрих-кодов (офлайн)</title>
-  <meta name="theme-color" content="#111827" />
+  <title>Настройки</title>
+  <meta name="theme-color" content="#4CAF50" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <style>
-    body { font-family: Arial, sans-serif; display:flex; gap:20px; padding:20px; }
-    #left { max-width:640px; }
-    video { width:100%; max-width:640px; border:1px solid #ccc; background:#000; }
-    canvas { display:none; }
-    #output { padding:10px; border:1px solid #ddd; min-height:40px; width:320px; }
-    button { margin-right:8px; padding:8px 12px; }
-    .hint { color:#666; font-size:0.9rem; margin-top:8px; }
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+    .serial-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .serial-row input[type="text"] {
+      margin-bottom: 0;
+    }
+    .serial-row button {
+      width: auto;
+      padding: 8px 12px;
+      white-space: nowrap;
+    }
+    input[type="submit"], button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button.secondary {
+      background-color: #6b7280;
+    }
+    input[type="submit"]:hover, button:hover {
+      background-color: #45a049;
+    }
+    button.secondary:hover {
+      background-color: #5a6270;
+    }
+    #error-msg {
+      color: red;
+      margin-bottom: 10px;
+    }
+    .scanner {
+      margin-top: 20px;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 16px;
+    }
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.55);
+      padding: 20px;
+      z-index: 1000;
+    }
+    .modal.hidden {
+      display: none;
+    }
+    .modal-content {
+      width: 100%;
+      max-width: 520px;
+      background: #fff;
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+    }
+    video {
+      width: 100%;
+      border: 1px solid #ccc;
+      background: #000;
+      border-radius: 4px;
+    }
+    canvas { display: none; }
+    .hint {
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+    #output {
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      min-height: 36px;
+      margin-top: 10px;
+    }
   </style>
+  <script>
+    function validateForm() {
+      const ip = document.getElementById('ip').value.trim();
+      const idProduct = document.getElementById('serial').value.trim();
+      const form = document.getElementById('myForm');
+      const errorMsg = document.getElementById('error-msg');
+
+      const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+      if (!ipRegex.test(ip)) {
+        errorMsg.textContent = "Неверный формат IP-адреса.";
+        return false;
+      }
+      if (idProduct.length !== 6) {
+        errorMsg.textContent = "Номер устройства должен содержать 6 символов.";
+        return false;
+      }
+
+      errorMsg.textContent = "";
+      form.action = 'http://' + ip + '/set_data';
+      return true;
+    }
+  </script>
 </head>
 <body>
-  <div id="left">
-    <h2>Сканер штрих/QR_QR — офлайн</h2>
-    <video id="video" autoplay playsinline></video>
-    <canvas id="canvas"></canvas>
-    <div class="hint">Поддерживаемые браузеры: Chromium/Chrome/Edge (лучше всего). Если камера не стартует — проверь, что открыт через <code>localhost</code> или по HTTPS.</div>
-    <div style="margin-top:8px;">
-      <button id="startBtn">Запустить камеру</button>
-      <button id="stopBtn" disabled>Остановить</button>
-    </div>
-  </div>
+  <h2>Настройки</h2>
+  <div id="error-msg"></div>
 
-  <div id="right">
-    <h3>Результат</h3>
-    <div id="output">— нет данных —</div>
-    <div class="hint" style="margin-top:10px;">
-      Запасной вариант: jsQR (если BarcodeDetector не поддерживается). Для этого скачай <code>jsQR</code> и подключи локально (см. инструкцию ниже).
+  <label for="ip">IP-адрес устройства:</label>
+  <input type="text" id="ip" value="192.168.0.1">
+
+  <form id="myForm" method="GET" onsubmit="return validateForm()">
+    <label for="serial">Серийный номер:</label>
+    <div class="serial-row">
+      <input type="text" id="serial" name="serial" maxlength="6">
+      <button id="scanBtn" type="button">QR‑код</button>
+    </div>
+    <input type="submit" value="Отправить">
+  </form>
+
+  <div class="modal hidden" id="scannerModal">
+    <div class="modal-content">
+      <div class="scanner" id="scanner">
+        <h3>Сканер QR/штрих‑кодов</h3>
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas"></canvas>
+        <button id="stopBtn" type="button" class="secondary" disabled>Остановить</button>
+        <div id="output">— нет данных —</div>
+        <div class="hint">Если камера не стартует — открой страницу через <code>localhost</code> или HTTPS.</div>
+      </div>
     </div>
   </div>
 
@@ -43,31 +166,27 @@
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
   const output = document.getElementById('output');
-  const startBtn = document.getElementById('startBtn');
+  const scanBtn = document.getElementById('scanBtn');
   const stopBtn = document.getElementById('stopBtn');
+  const serialInput = document.getElementById('serial');
+  const scannerModal = document.getElementById('scannerModal');
 
   let stream = null;
   let rafId = null;
   let detector = null;
   let useBarcodeDetector = false;
+  let captured = false;
 
-  // Проверяем поддержку BarcodeDetector
   if ('BarcodeDetector' in window) {
     try {
       const supported = await BarcodeDetector.getSupportedFormats();
-      // Поддерживаемые форматы сюда попадут, например: ["qr_code","ean_13",...]
-      detector = new BarcodeDetector({formats: supported});
+      detector = new BarcodeDetector({ formats: supported });
       useBarcodeDetector = true;
-      console.log('Используем BarcodeDetector. Форматы:', supported);
     } catch (e) {
-      console.warn('BarcodeDetector не доступен:', e);
       useBarcodeDetector = false;
     }
-  } else {
-    console.log('BarcodeDetector не поддерживается в этом браузере.');
   }
 
-  // Функция обработки кадра
   async function processFrame() {
     if (!video.videoWidth) {
       rafId = requestAnimationFrame(processFrame);
@@ -80,26 +199,19 @@
 
     try {
       if (useBarcodeDetector && detector) {
-        // Используем нативный API
         const barcodes = await detector.detect(canvas);
         if (barcodes && barcodes.length) {
-          // Показать все найденные
-          output.innerHTML = barcodes.map(b => {
-            // b.rawValue — данные; b.format — формат
-            return `<div><strong>${b.format}</strong>: ${escapeHtml(b.rawValue)}</div>`;
-          }).join('');
+          const value = barcodes[0].rawValue || '';
+          handleDetected(value, barcodes[0].format);
         } else {
-          // нет результата
           output.textContent = '— не найдено —';
         }
       } else {
-        // Запасной вариант: jsQR (нужен глобальный jsQR)
         if (typeof jsQR === 'function') {
           const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
           const qr = jsQR(imageData.data, imageData.width, imageData.height);
           if (qr) {
-            output.innerHTML = `<div><strong>JSQR</strong>: ${escapeHtml(qr.data)}</div>`;
-            // можно добавить отрисовку рамки: qr.location...
+            handleDetected(qr.data, 'JSQR');
             drawLine(qr.location.topLeftCorner, qr.location.topRightCorner);
             drawLine(qr.location.topRightCorner, qr.location.bottomRightCorner);
             drawLine(qr.location.bottomRightCorner, qr.location.bottomLeftCorner);
@@ -112,11 +224,23 @@
         }
       }
     } catch (err) {
-      console.error(err);
       output.textContent = 'Ошибка: ' + err.message;
     }
 
     rafId = requestAnimationFrame(processFrame);
+  }
+
+  function handleDetected(value, label) {
+    if (!value) {
+      output.textContent = '— не найдено —';
+      return;
+    }
+    output.textContent = label + ': ' + value;
+    if (!captured) {
+      captured = true;
+      serialInput.value = value;
+      stopCamera();
+    }
   }
 
   function drawLine(a, b) {
@@ -128,21 +252,18 @@
     ctx.stroke();
   }
 
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); });
-  }
-
   async function startCamera() {
     try {
+      captured = false;
+      scannerModal.classList.remove('hidden');
       stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
       video.srcObject = stream;
       await video.play();
-      startBtn.disabled = true;
+      scanBtn.disabled = true;
       stopBtn.disabled = false;
       rafId = requestAnimationFrame(processFrame);
       output.textContent = 'Камера запущена, ищем штрих/QR...';
     } catch (e) {
-      console.error('Ошибка доступа к камере:', e);
       output.textContent = 'Ошибка доступа к камере: ' + (e.message || e.name);
     }
   }
@@ -154,17 +275,16 @@
       stream = null;
     }
     video.srcObject = null;
-    startBtn.disabled = false;
+    scanBtn.disabled = false;
     stopBtn.disabled = true;
-    output.textContent = 'Камера остановлена.';
+    scannerModal.classList.add('hidden');
+    if (!captured) {
+      output.textContent = 'Камера остановлена.';
+    }
   }
 
-  startBtn.addEventListener('click', startCamera);
+  scanBtn.addEventListener('click', startCamera);
   stopBtn.addEventListener('click', stopCamera);
-
-  // Если хочешь — можно автозапускать:
-  // startCamera();
-
 })();
 
 if ('serviceWorker' in navigator) {
@@ -176,14 +296,5 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
-<!--
-Запасной вариант (jsQR):
-1) Скачай jsQR (https://github.com/cozmo/jsQR) — бери скомпилированный файл jsQR.js (или jsQR.min.js).
-2) Положи его в ту же папку, что и index.html.
-3) Раскомментируй следующий тег, чтобы подключить локальную библиотеку:
-
-<script src="jsqr.min.js"></script>
-
--->
 </body>
 </html>
