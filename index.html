@@ -133,12 +133,26 @@
         padding: 16px;
         max-width: 100%;
       }
+      .ip-field {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      .ip-field label {
+        margin-bottom: 0;
+        white-space: nowrap;
+      }
       .ip-row,
       .serial-row {
-        grid-template-columns: 1fr;
+        grid-template-columns: 110px 1fr;
+      }
+      .ip-row {
+        margin-bottom: 0;
       }
       .serial-row button {
-        width: 100%;
+        width: auto;
       }
       input[type="submit"], button {
         font-size: 16px;
@@ -194,10 +208,12 @@
   <h2>Настройки</h2>
   <div id="error-msg"></div>
 
-  <label for="ip">IP-адрес устройства:</label>
-  <div class="ip-row">
-    <input type="text" id="ip-prefix" value="192.168.0." readonly>
-    <input type="text" id="ip" inputmode="numeric" maxlength="3" placeholder="1–255" autocomplete="off">
+  <div class="ip-field">
+    <label for="ip">IP:</label>
+    <div class="ip-row">
+      <input type="text" id="ip-prefix" value="192.168.0." readonly>
+      <input type="text" id="ip" inputmode="numeric" maxlength="3" placeholder="1–255" autocomplete="off">
+    </div>
   </div>
 
   <form id="myForm" method="GET" onsubmit="return validateForm()">
