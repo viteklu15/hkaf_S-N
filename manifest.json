@@ -1,10 +1,11 @@
-{
-  "name": "Калькулятор премии",
-  "short_name": "Премия",
-  "start_url": ".",
+﻿{
+  "name": "Сканер штрих/QR (офлайн)",
+  "short_name": "Сканер",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#4CAF50",
+  "theme_color": "#111827",
   "icons": [
     {
       "src": "icon-192.png",

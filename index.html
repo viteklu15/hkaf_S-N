@@ -4,6 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Веб-сканер штрих-кодов (офлайн)</title>
+  <meta name="theme-color" content="#111827" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
   <style>
     body { font-family: Arial, sans-serif; display:flex; gap:20px; padding:20px; }
     #left { max-width:640px; }
@@ -16,7 +19,7 @@
 </head>
 <body>
   <div id="left">
-    <h2>Сканер штрих/QR — офлайн</h2>
+    <h2>Сканер штрих/QR_QR — офлайн</h2>
     <video id="video" autoplay playsinline></video>
     <canvas id="canvas"></canvas>
     <div class="hint">Поддерживаемые браузеры: Chromium/Chrome/Edge (лучше всего). Если камера не стартует — проверь, что открыт через <code>localhost</code> или по HTTPS.</div>
@@ -163,6 +166,14 @@
   // startCamera();
 
 })();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./service-worker.js').catch(function(err) {
+      console.warn('Service Worker не зарегистрирован:', err);
+    });
+  });
+}
 </script>
 
 <!--
